@@ -36,7 +36,7 @@ app.get('/api/candidates', (req, res) => {
     });
 });
 
-// //get a SINGLE candidate
+//get a SINGLE candidate
 app.get('/api/candidate/:id', (req, res) => {
     const sql = `SELECT * FROM candidates 
                  WHERE id = ?`;
@@ -53,26 +53,35 @@ app.get('/api/candidate/:id', (req, res) => {
     });
 });
 
+// DELETE a candidate
+app.delete('/api/candidate/:id', (req, res) => {
+    const sql = `DELETE FROM candidates
+                WHERE id = ?`;
+    const params = [req.params.id];
+    db.run(sql, params, function (err, result) {
+        if (err) {
+            res.status(400).json({ error: res.message });
+            return;
+        }
 
-// // DELETE a candidate
-// db.run(`DELETE FROM candidates WHERE id=?`, 1, function (err, result) {
-//     if (err) {
-//         console.log(err);
-//     }
-//     console.log(result, this, this.changes);
-// });
+        res.json({
+            message: 'successfully deleted',
+            changes: this.changes
+        });
+    });
+});
 
-// // CREATE a candidate
-// const sql = `INSERT INTO candidates (id, first_name, last_name, industry_connected)
-//                 VALUES (?, ?, ?, ?)`;
-// const params = [1, 'Ronald', 'Firbank', 1];
-// // ES5 function, not arrow function, to use this
-// db.run(sql, params, function(err, result) {
-//     if (err) {
-//         console.log(err);
-//     }
-//     console.log(result, this.lastID);
-// });
+// CREATE a candidate
+const sql = `INSERT INTO candidates (id, first_name, last_name, industry_connected)
+                VALUES (?, ?, ?, ?)`;
+const params = [1, 'Ronald', 'Firbank', 1];
+// ES5 function, not arrow function, to use this
+db.run(sql, params, function (err, result) {
+    if (err) {
+        console.log(err);
+    }
+    console.log(result, this.lastID);
+});
 
 //default response for any other request(Not Found) catch all
 app.use((req, res) => {
