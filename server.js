@@ -106,6 +106,7 @@ app.post('/api/candidate', ({ body }, res) => {
     });
 });
 
+//view parties and their descriptions
 app.get('/api/parties', (req, res) => {
     const sql = `SELECT * FROM parties`;
     const params = [];
@@ -122,6 +123,7 @@ app.get('/api/parties', (req, res) => {
     });
 });
 
+//view a party based on id
 app.get('/api/party/:id', (req, res) => {
     const sql = `SELECT * FROM parties WHERE id = ?`;
     const params = [req.params.id];
@@ -131,24 +133,53 @@ app.get('/api/party/:id', (req, res) => {
             return;
         }
 
-        res.json({ 
+        res.json({
             message: 'success',
             data: row
         });
     });
 });
 
+//delete a party from the candidates table, by party id
 app.delete('/api/party/:id', (req, res) => {
     const sql = `DELETE FROM parties WHERE id = ?`;
     const params = [req.params.id];
-    db.run(sql, params, function(err, result) {
+    db.run(sql, params, function (err, result) {
         if (err) {
             res.status(400).json({ error: res.message });
             return;
         }
 
-        res.json({ 
-            message: 'successfully deleted', changes: this.changes 
+        res.json({
+            message: 'successfully deleted', changes: this.changes
+        });
+    });
+});
+
+//update a candidate's party affiliation, based on candidate's id
+app.put('/api/candidate/:id', (req, res) => {
+    //check to make sure a party_id was provided before attempting to update the database
+    const errors = inputCheck(req.body, 'party_id');
+
+    if (errors) {
+        res.status(400).json({ error: errors });
+        return;
+    }
+
+    const sql = `UPDATE candidates SET party_id = ?
+                WHERE id = ?`;
+    const params = [req.body.party_id, req.params.id];
+
+    db.run(sql, params, function (err, result) {
+        if (err) {
+            res.status(400).json({ error: err.message });
+            return;
+        }
+
+        res.json({
+            message: 'success',
+            data: req.body,
+            changes: this.changes
         });
     });
 });
