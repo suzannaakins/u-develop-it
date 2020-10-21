@@ -1,6 +1,8 @@
 //import express
 const express = require('express');
 const { ppid } = require('process');
+//import db module
+const db = require('./db/database');
 //add the port designation
 const PORT = process.env.PORT || 3001;
 //add the app expression
@@ -8,19 +10,9 @@ const app = express();
 //import inputCheck module to verify data
 const inputCheck = require('./utils/inputCheck');
 
-//import the sqlite3 package
-const sqlite3 = require('sqlite3').verbose();
-
 //express.js middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-//connect the app to the SQLite database
-const db = new sqlite3.Database('./db/election.db', err => {
-    if (err) {
-        return console.error(err.message);
-    }
-    console.log('Connected to the election database.');
-});
 
 // get ALL potential candidates listed
 app.get('/api/candidates', (req, res) => {
