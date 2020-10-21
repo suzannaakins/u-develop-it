@@ -37,4 +37,29 @@ router.get('/voter/:id', (req, res) => {
     });
 });
 
+//allow voters to register (create a NEW voter)
+router.post('/voter', ({ body }, res) => {
+    const errors = inputCheck(body, 'first_name', 'last_name', 'email');
+    if (errors) {
+        res.status(400).json({ error: errors });
+        return;
+    }
+
+    const sql = `INSERT INTO voters (first_name, last_name, email) VALUES (?, ?, ?)`;
+    const params = [body.first_name, body.last_name, body.email];
+
+    db.run(sql, params, function (err, data) {
+        if (err) {
+            res.status(400).json({ error: err.message });
+            return;
+        }
+
+        res.json({
+            message: 'success',
+            data: body,
+            id: this.lastID
+        });
+    });
+});
+
 module.exports = router;
