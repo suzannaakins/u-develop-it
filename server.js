@@ -63,24 +63,6 @@ app.get('/api/candidate/:id', (req, res) => {
     });
 });
 
-// DELETE a candidate
-app.delete('/api/candidate/:id', (req, res) => {
-    const sql = `DELETE FROM candidates
-                WHERE id = ?`;
-    const params = [req.params.id];
-    db.run(sql, params, function (err, result) {
-        if (err) {
-            res.status(400).json({ error: res.message });
-            return;
-        }
-
-        res.json({
-            message: 'successfully deleted',
-            changes: this.changes
-        });
-    });
-});
-
 // CREATE a candidate
 app.post('/api/candidate', ({ body }, res) => {
     const errors = inputCheck(body, 'first_name', 'last_name', 'industry_connected');
@@ -102,6 +84,52 @@ app.post('/api/candidate', ({ body }, res) => {
             message: 'success',
             data: body,
             id: this.lastID
+        });
+    });
+});
+
+//update a candidate's party affiliation, based on candidate's id
+app.put('/api/candidate/:id', (req, res) => {
+    //check to make sure a party_id was provided before attempting to update the database
+    const errors = inputCheck(req.body, 'party_id');
+
+    if (errors) {
+        res.status(400).json({ error: errors });
+        return;
+    }
+
+    const sql = `UPDATE candidates SET party_id = ?
+                WHERE id = ?`;
+    const params = [req.body.party_id, req.params.id];
+
+    db.run(sql, params, function (err, result) {
+        if (err) {
+            res.status(400).json({ error: err.message });
+            return;
+        }
+
+        res.json({
+            message: 'success',
+            data: req.body,
+            changes: this.changes
+        });
+    });
+});
+
+// DELETE a candidate
+app.delete('/api/candidate/:id', (req, res) => {
+    const sql = `DELETE FROM candidates
+                WHERE id = ?`;
+    const params = [req.params.id];
+    db.run(sql, params, function (err, result) {
+        if (err) {
+            res.status(400).json({ error: res.message });
+            return;
+        }
+
+        res.json({
+            message: 'successfully deleted',
+            changes: this.changes
         });
     });
 });
@@ -152,34 +180,6 @@ app.delete('/api/party/:id', (req, res) => {
 
         res.json({
             message: 'successfully deleted', changes: this.changes
-        });
-    });
-});
-
-//update a candidate's party affiliation, based on candidate's id
-app.put('/api/candidate/:id', (req, res) => {
-    //check to make sure a party_id was provided before attempting to update the database
-    const errors = inputCheck(req.body, 'party_id');
-
-    if (errors) {
-        res.status(400).json({ error: errors });
-        return;
-    }
-
-    const sql = `UPDATE candidates SET party_id = ?
-                WHERE id = ?`;
-    const params = [req.body.party_id, req.params.id];
-
-    db.run(sql, params, function (err, result) {
-        if (err) {
-            res.status(400).json({ error: err.message });
-            return;
-        }
-
-        res.json({
-            message: 'success',
-            data: req.body,
-            changes: this.changes
         });
     });
 });
