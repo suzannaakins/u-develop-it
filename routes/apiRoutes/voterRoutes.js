@@ -62,4 +62,31 @@ router.post('/voter', ({ body }, res) => {
     });
 });
 
+//allow voters/users to update their email address 
+//req.params gets WHO is being updated, req.body gets WHAT is being updated
+router.put('/voter/:id', (req, res) => {
+    //data validation
+    const errors = inputCheck(req.body, 'email');
+    if (errors) {
+        res.status(400).json({ error: errors });
+        return;
+    }
+
+    const sql = `UPDATE voters SET email = ? WHERE id = ?`;
+    const params = [req.body.email, req.params.id];
+
+    db.run(sql, params, function (err, data) {
+        if (err) {
+            res.status(400).json({ error: err.message });
+            return;
+        }
+
+        res.json({
+            message: 'success',
+            data: req.body,
+            changes: this.changes
+        });
+    });
+});
+
 module.exports = router;
