@@ -20,4 +20,21 @@ router.get('/voters', (req, res) => {
     });
 });
 
+router.get('/voter/:id', (req, res) => {
+    const sql = `SELECT * FROM voters WHERE id = ?`;
+    const params = [req.params.id];
+
+    db.get(sql, params, (err, row) => {
+        if (err) {
+            res.status(400).json({ error: err.message });
+            return;
+        }
+
+        res.json({
+            message: 'success',
+            data: row
+        });
+    });
+});
+
 module.exports = router;
